@@ -1,0 +1,40 @@
+:-dynamic horario/1.
+
+reset():-
+    (   retractall(clase(_,_,_,_,_,_)),
+        retractall(profesorOcupado(_,_,_)),
+        retractall(aulaOcupada(_,_,_,_)),
+        retractall(profesorCurso(_,_)),
+        retractall(leccion(_,_,_,_,_,_,_))
+    ->
+    consult(proyectoReglas)
+    ;
+    consult(proyectoReglas)).
+
+crearClase(NombreCurso):-
+    crearLeccion(NombreCurso),
+    leccion(NombreCurso,_,_,_,_,Semestre,CarnetProfesor),
+    crearLeccion(NombreCurso,_,_,_,_,Semestre,CarnetProfesor),
+    crearLeccion(NombreCurso,_,_,_,_,Semestre,CarnetProfesor),
+    crearLeccion(NombreCurso,_,_,_,_,Semestre,CarnetProfesor),
+    crearLeccion(NombreCurso,_,_,_,_,Semestre,CarnetProfesor).
+
+creaHorario2([]):-
+    ((findall(
+             (NombreCurso,Dia,Hora,Aula,Numero,Semestre,CarnetProfesor),
+             leccion(NombreCurso,Dia,Hora,Aula,Numero,Semestre,CarnetProfesor),
+             HorarioFinal),
+
+    not(horario(HorarioFinal)))->
+    assert(horario(HorarioFinal))
+    ;reset(),fail).
+
+creaHorario(ListaCursos):-
+    reset(),
+    creaHorario2(ListaCursos).
+
+creaHorario2([Curso|Cursos]):-
+    (   crearClase(Curso)
+    ->  creaHorario2(Cursos)
+    ;   reset(),fail).
+
